@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏆 Ranking de Indicações</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg:       #070714;
+    --surface:  #0d0d2b;
+    --card:     #111133;
+    --border:   #1e1e5a;
+    --accent:   #e94560;
+    --accent2:  #00d4ff;
+    --gold:     #ffd700;
+    --silver:   #c0c0c0;
+    --bronze:   #cd7f32;
+    --green:    #00e676;
+    --text:     #e8eaf6;
+    --muted:    #5c6bc0;
+    --glow-r:   rgba(233,69,96,.55);
+    --glow-b:   rgba(0,212,255,.45);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Starfield bg ── */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, #1a0830 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 80%, #00122a 0%, transparent 60%);
+    pointer-events:none;
+  }
+
+  #stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+  .wrap { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:30px 20px 60px; }
+
+  /* ── Header ── */
+  header { text-align:center; margin-bottom:48px; }
+
+  .trophy-icon { font-size:56px; display:block; animation:float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+  h1 {
+    font-family:'Orbitron', sans-serif;
+    font-size:clamp(22px,5vw,42px);
+    font-weight:900;
+    letter-spacing:3px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    text-transform:uppercase;
+    margin:10px 0 6px;
+    text-shadow: 0 0 40px var(--glow-r);
+  }
+
+  .subtitle {
+    font-size:14px; letter-spacing:4px; color:var(--muted); text-transform:uppercase;
+  }
+
+  /* ── Upload box ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius:16px;
+    padding:30px;
+    text-align:center;
+    cursor:pointer;
+    transition:.3s;
+    margin-bottom:36px;
+    background: rgba(14,14,40,.6);
+    backdrop-filter:blur(8px);
+  }
+  .upload-zone:hover { border-color:var(--accent2); box-shadow:0 0 20px var(--glow-b); }
+  .upload-zone input { display:none; }
+  .upload-zone .icon { font-size:32px; margin-bottom:8px; }
+  .upload-zone p { font-size:15px; color:var(--muted); }
+  .upload-zone span { color:var(--accent2); font-weight:700; }
+
+  /* ── KPI bar ── */
+  .kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:16px;
+    margin-bottom:36px;
+  }
+
+  .kpi {
+    background: var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px 16px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    transition:.3s;
+  }
+  .kpi::after {
+    content:'';
+    position:absolute; bottom:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .kpi:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,212,255,.15); }
+  .kpi-value { font-family:'Orbitron',sans-serif; font-size:32px; font-weight:700; color:var(--accent2); }
+  .kpi-label { font-size:11px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+
+  /* ── Section title ── */
+  .section-title {
+    font-family:'Orbitron',sans-serif;
+    font-size:13px; letter-spacing:4px; text-transform:uppercase;
+    color:var(--muted); margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── Podium ── */
+  .podium-wrap {
+    display:flex; align-items:flex-end; justify-content:center;
+    gap:16px; margin-bottom:48px; padding:0 10px;
+  }
+
+  .podium-block {
+    flex:1; max-width:220px;
+    border-radius:16px 16px 0 0;
+    padding:20px 14px 16px;
+    text-align:center;
+    position:relative;
+    cursor:default;
+    transition:.3s;
+    border:1px solid transparent;
+  }
+  .podium-block:hover { transform:translateY(-6px); }
+
+  .podium-1 {
+    background: linear-gradient(180deg, #2a1f00 0%, #1a1200 100%);
+    border-color: var(--gold);
+    box-shadow: 0 0 30px rgba(255,215,0,.25);
+    min-height:200px;
+  }
+  .podium-2 {
+    background: linear-gradient(180deg, #1c1c1c 0%, #111 100%);
+    border-color: var(--silver);
+    box-shadow: 0 0 20px rgba(192,192,192,.15);
+    min-height:160px;
+  }
+  .podium-3 {
+    background: linear-gradient(180deg, #1a0e00 0%, #100800 100%);
+    border-color: var(--bronze);
+    box-shadow: 0 0 20px rgba(205,127,50,.15);
+    min-height:130px;
+  }
+
+  .podium-medal { font-size:38px; display:block; margin-bottom:6px; animation:float 3s ease-in-out infinite; }
+  .podium-2 .podium-medal { animation-delay:.6s; }
+  .podium-3 .podium-medal { animation-delay:1.2s; }
+
+  .podium-pos {
+    font-family:'Orbitron',sans-serif; font-size:13px; letter-spacing:2px;
+    margin-bottom:6px;
+  }
+  .podium-1 .podium-pos { color:var(--gold); }
+  .podium-2 .podium-pos { color:var(--silver); }
+  .podium-3 .podium-pos { color:var(--bronze); }
+
+  .podium-name { font-size:17px; font-weight:700; margin-bottom:8px; }
+  .podium-score {
+    font-family:'Orbitron',sans-serif; font-size:30px; font-weight:900;
+  }
+  .podium-1 .podium-score { color:var(--gold); text-shadow:0 0 15px var(--gold); }
+  .podium-2 .podium-score { color:var(--silver); }
+  .podium-3 .podium-score { color:var(--bronze); }
+
+  .podium-pct { font-size:12px; color:var(--muted); margin-top:4px; }
+  .podium-badge {
+    position:absolute; top:-12px; left:50%; transform:translateX(-50%);
+    background:var(--gold); color:#000; font-size:10px; font-weight:700;
+    padding:3px 10px; border-radius:99px; letter-spacing:1px;
+    display:none;
+  }
+  .podium-1 .podium-badge { display:block; }
+
+  /* ── Full ranking table ── */
+  .ranking-table {
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 6px;
+  }
+
+  .ranking-table thead tr th {
+    font-size:11px; letter-spacing:3px; text-transform:uppercase;
+    color:var(--muted); padding:10px 16px; text-align:left;
+  }
+
+  .ranking-row {
+    background: var(--card);
+    border-radius:10px;
+    transition:.25s;
+    cursor:default;
+  }
+  .ranking-row:hover { background:#171740; transform:translateX(4px); }
+
+  .ranking-row td { padding:14px 16px; }
+  .ranking-row td:first-child { border-radius:10px 0 0 10px; }
+  .ranking-row td:last-child  { border-radius:0 10px 10px 0; }
+
+  .rank-num {
+    font-family:'Orbitron',sans-serif; font-size:14px; font-weight:700;
+    width:40px; text-align:center; color:var(--muted);
+  }
+  .rank-1 { color:var(--gold)!important; }
+  .rank-2 { color:var(--silver)!important; }
+  .rank-3 { color:var(--bronze)!important; }
+
+  .rank-name { font-size:17px; font-weight:600; }
+  .rank-score { font-family:'Orbitron',sans-serif; font-size:22px; font-weight:700; color:var(--accent); }
+  .rank-meta  { font-size:12px; color:var(--muted); }
+
+  /* Progress bar */
+  .bar-wrap { background:rgba(255,255,255,.06); border-radius:99px; height:8px; width:100%; min-width:120px; overflow:hidden; }
+  .bar-fill  { height:100%; border-radius:99px; transition:width 1s ease; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+  .bar-fill.over { background:linear-gradient(90deg,var(--green),#69f0ae); }
+
+  .pct-text { font-size:13px; font-weight:600; color:var(--text); text-align:right; min-width:46px; }
+
+  /* Badges */
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; letter-spacing:1px; margin-left:8px; }
+  .badge-fire  { background:rgba(233,69,96,.15); color:var(--accent); border:1px solid var(--accent); }
+  .badge-star  { background:rgba(255,215,0,.1);  color:var(--gold);   border:1px solid var(--gold); }
+  .badge-up    { background:rgba(0,230,118,.1);  color:var(--green);  border:1px solid var(--green); }
+
+  /* Empty state */
+  .empty { text-align:center; padding:60px 20px; color:var(--muted); }
+  .empty-icon { font-size:56px; display:block; margin-bottom:16px; }
+  .empty p { font-size:16px; }
+
+  /* Pulse animation on 1st place */
+  @keyframes pulse-gold {
+    0%,100% { box-shadow:0 0 30px rgba(255,215,0,.25); }
+    50%      { box-shadow:0 0 60px rgba(255,215,0,.55); }
+  }
+  .podium-1 { animation:pulse-gold 2.5s ease-in-out infinite; }
+
+  /* Scroll-reveal */
+  .reveal { opacity:0; transform:translateY(24px); transition:.5s ease; }
+  .reveal.show { opacity:1; transform:translateY(0); }
+
+  /* Responsive */
+  @media(max-width:640px){
+    .podium-wrap { flex-direction:column; align-items:center; }
+    .podium-block { max-width:100%; width:100%; min-height:auto!important; border-radius:14px; }
+    .podium-1 { order:-1; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <span class="trophy-icon">🏆</span>
+    <h1>Ranking de Indicações</h1>
+    <p class="subtitle">Equipe Comercial &nbsp;·&nbsp; Atualizado em tempo real</p>
+  </header>
+
+  <!-- Upload -->
+  <div class="upload-zone reveal" id="dropZone">
+    <input type="file" id="xlsxInput" accept=".xlsx,.csv">
+    <div class="icon">📂</div>
+    <p>Arraste o arquivo <span>.xlsx</span> aqui ou <span>clique para carregar</span></p>
+    <p style="margin-top:6px;font-size:12px">Planilha: <em>indicacoes_vendedores.xlsx</em></p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid reveal" id="kpiGrid" style="display:none">
+    <div class="kpi"><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-label">Total de Indicações</div></div>
+    <div class="kpi"><div class="kpi-value" id="kpiVendedores">0</div><div class="kpi-label">Vendedores Ativos</div></div>
+    <div class="kpi"><div class="kpi-value" id="kpiMedia">0</div><div class="kpi-label">Média por Vendedor</div></div>
+    <div class="kpi"><div class="kpi-value" id="kpiLider">—</div><div class="kpi-label">Líder do Ranking</div></div>
+  </div>
+
+  <!-- Podium -->
+  <div id="podiumSection" style="display:none">
+    <p class="section-title">🥇 Pódio</p>
+    <div class="podium-wrap reveal" id="podium"></div>
+  </div>
+
+  <!-- Full Ranking -->
+  <div id="rankingSection" style="display:none">
+    <p class="section-title">📊 Ranking Completo</p>
+    <div class="reveal">
+      <table class="ranking-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Vendedor</th><th>Indicações</th><th>Progresso da Meta</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="rankingBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty reveal show" id="emptyState">
+    <span class="empty-icon">🚀</span>
+    <p>Carregue a planilha para ver o ranking ao vivo</p>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ── Starfield ──────────────────────────────────────────────────────────────
+const canvas = document.getElementById('stars');
+const ctx    = canvas.getContext('2d');
+let stars    = [];
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+for (let i = 0; i < 180; i++) {
+  stars.push({
+    x: Math.random(), y: Math.random(),
+    r: Math.random() * 1.4 + 0.3,
+    speed: Math.random() * 0.0003 + 0.0001,
+    opacity: Math.random() * 0.7 + 0.1
+  });
+}
+
+function drawStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.y += s.speed;
+    if (s.y > 1) { s.y = 0; s.x = Math.random(); }
+    ctx.beginPath();
+    ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,210,255,${s.opacity})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+// ── Reveal on load ─────────────────────────────────────────────────────────
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  setTimeout(() => el.classList.add('show'), i * 120);
+});
+
+// ── Upload / Drop ──────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('dropZone');
+const xlsxInput = document.getElementById('xlsxInput');
+
+dropZone.addEventListener('click', () => xlsxInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor='var(--accent)'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor=''; });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.style.borderColor='';
+  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+});
+xlsxInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+
+// ── Process XLSX ───────────────────────────────────────────────────────────
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb  = XLSX.read(e.target.result, { type:'binary', cellDates:true });
+      // Tenta ler a aba INDICAÇÕES
+      const sheetName = wb.SheetNames.find(n => n.includes('ICA') || n.includes('ica')) || wb.SheetNames[0];
+      const ws  = wb.Sheets[sheetName];
+      const raw = XLSX.utils.sheet_to_json(ws, { header:1, raw:false });
+
+      // Detecta linha de cabeçalho (procura "VENDEDOR" ou "vendedor")
+      let headerRow = -1;
+      for (let i = 0; i < raw.length; i++) {
+        const r = raw[i].map(c => String(c||'').toUpperCase());
+        if (r.some(c => c.includes('VENDEDOR'))) { headerRow = i; break; }
+      }
+      if (headerRow < 0) { alert('Coluna "VENDEDOR" não encontrada na planilha.'); return; }
+
+      const headers = raw[headerRow].map(c => String(c||'').toUpperCase());
+      const iNome   = headers.findIndex(h => h.includes('VENDEDOR'));
+      const iQtd    = headers.findIndex(h => h.includes('INDICA') || h.includes('TOTAL'));
+      const iMeta   = headers.findIndex(h => h.includes('META'));
+
+      if (iNome < 0 || iQtd < 0) { alert('Colunas necessárias não encontradas.'); return; }
+
+      const data = [];
+      for (let i = headerRow + 1; i < raw.length; i++) {
+        const row  = raw[i];
+        const nome = String(row[iNome] || '').trim();
+        const qtd  = parseFloat(String(row[iQtd] || '0').replace(',','.')) || 0;
+        const meta = iMeta >= 0 ? (parseFloat(String(row[iMeta]||'30').replace(',','.')) || 30) : 30;
+        if (!nome || nome.toUpperCase().includes('TOTAL') || nome.toUpperCase().includes('GERAL')) continue;
+        data.push({ nome, qtd, meta });
+      }
+
+      if (!data.length) { alert('Nenhum vendedor encontrado.'); return; }
+
+      data.sort((a,b) => b.qtd - a.qtd);
+      renderDashboard(data);
+    } catch(err) {
+      console.error(err);
+      alert('Erro ao ler a planilha. Verifique o formato.');
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function renderDashboard(data) {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('kpiGrid').style.display = 'grid';
+  document.getElementById('podiumSection').style.display = 'block';
+  document.getElementById('rankingSection').style.display = 'block';
+
+  // KPIs
+  const total   = data.reduce((s,d) => s + d.qtd, 0);
+  const ativos  = data.filter(d => d.qtd > 0).length;
+  const media   = ativos ? (total / ativos).toFixed(1) : '0';
+  const lider   = data[0]?.nome.split(' ')[0] || '—';
+
+  animateCount('kpiTotal', total);
+  animateCount('kpiVendedores', ativos);
+  document.getElementById('kpiMedia').textContent = media;
+  document.getElementById('kpiLider').textContent = lider;
+
+  // Podium
+  const podiumEl = document.getElementById('podium');
+  podiumEl.innerHTML = '';
+  const top3 = data.slice(0,3);
+  const order = [1, 0, 2]; // visual: 2nd, 1st, 3rd
+
+  order.forEach(idx => {
+    if (!top3[idx]) return;
+    const d    = top3[idx];
+    const pos  = idx + 1;
+    const medals = ['🥇','🥈','🥉'];
+    const cls  = ['podium-1','podium-2','podium-3'];
+    const pct  = d.meta ? Math.min(d.qtd / d.meta * 100, 999).toFixed(0) : 0;
+
+    const div = document.createElement('div');
+    div.className = `podium-block ${cls[idx]} reveal`;
+    div.innerHTML = `
+      <div class="podium-badge">LÍDER ⚡</div>
+      <span class="podium-medal">${medals[idx]}</span>
+      <div class="podium-pos">${pos}º LUGAR</div>
+      <div class="podium-name">${d.nome}</div>
+      <div class="podium-score" data-target="${d.qtd}">0</div>
+      <div class="podium-pct">${pct}% da meta</div>
+    `;
+    podiumEl.appendChild(div);
+    setTimeout(() => div.classList.add('show'), idx * 150);
+  });
+
+  // Animate podium scores
+  setTimeout(() => {
+    document.querySelectorAll('.podium-score').forEach(el => {
+      animateCount(el, parseInt(el.dataset.target) || 0, null, true);
+    });
+  }, 400);
+
+  // Ranking table
+  const tbody = document.getElementById('rankingBody');
+  tbody.innerHTML = '';
+
+  data.forEach((d, i) => {
+    const pct    = d.meta ? Math.min(d.qtd / d.meta * 100, 100) : 0;
+    const over   = d.meta && d.qtd >= d.meta;
+    const rankCls = i < 3 ? `rank-${i+1}` : '';
+    const badges  = getBadges(d, i, data);
+    const medals  = ['🥇','🥈','🥉'];
+
+    const tr = document.createElement('tr');
+    tr.className = 'ranking-row';
+    tr.innerHTML = `
+      <td class="rank-num ${rankCls}">${i < 3 ? medals[i] : i+1}</td>
+      <td class="rank-name">${d.nome}${badges}</td>
+      <td class="rank-score" data-target="${d.qtd}">0</td>
+      <td>
+        <div class="bar-wrap">
+          <div class="bar-fill ${over?'over':''}" style="width:0%" data-pct="${pct}"></div>
+        </div>
+      </td>
+      <td class="pct-text">${d.meta ? Math.min(d.qtd/d.meta*100,999).toFixed(0)+'%' : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Animate bars and scores
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+    document.querySelectorAll('.rank-score').forEach(el => {
+      animateCount(el, parseInt(el.dataset.target)||0, null, true);
+    });
+  }, 200);
+
+  // Scroll reveals
+  document.querySelectorAll('.reveal').forEach((el,i) => {
+    setTimeout(() => el.classList.add('show'), i * 80);
+  });
+}
+
+function getBadges(d, rank, data) {
+  let out = '';
+  if (rank === 0) out += '<span class="badge badge-star">⚡ LÍDER</span>';
+  if (d.meta && d.qtd >= d.meta) out += '<span class="badge badge-up">✓ META</span>';
+  if (d.qtd >= 20) out += '<span class="badge badge-fire">🔥 HOT</span>';
+  return out;
+}
+
+function animateCount(elOrId, target, duration=900, isEl=false) {
+  const el = isEl ? elOrId : document.getElementById(elOrId);
+  if (!el) return;
+  const start = Date.now();
+  const step = () => {
+    const p = Math.min((Date.now()-start)/duration, 1);
+    const ease = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(ease * target);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  step();
+}
+</script>
+</body>
+</html>
