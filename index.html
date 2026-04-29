@@ -5,540 +5,503 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🏆 Ranking de Indicações</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
-  :root {
-    --bg:       #070714;
-    --surface:  #0d0d2b;
-    --card:     #111133;
-    --border:   #1e1e5a;
-    --accent:   #e94560;
-    --accent2:  #00d4ff;
-    --gold:     #ffd700;
-    --silver:   #c0c0c0;
-    --bronze:   #cd7f32;
-    --green:    #00e676;
-    --text:     #e8eaf6;
-    --muted:    #5c6bc0;
-    --glow-r:   rgba(233,69,96,.55);
-    --glow-b:   rgba(0,212,255,.45);
-  }
+:root {
+  --bg:      #06060f;
+  --surface: #0c0c20;
+  --card:    #10103a;
+  --border:  #1a1a4a;
+  --accent:  #e94560;
+  --cyan:    #00d4ff;
+  --gold:    #ffd700;
+  --silver:  #b8c5d6;
+  --bronze:  #cd7f32;
+  --green:   #00e676;
+  --text:    #dde3f5;
+  --muted:   #4a5580;
+  --glow-r:  rgba(233,69,96,.5);
+  --glow-c:  rgba(0,212,255,.4);
+}
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-  /* ── Starfield bg ── */
-  body::before {
-    content:'';
-    position:fixed; inset:0; z-index:0;
-    background: radial-gradient(ellipse 80% 60% at 50% 0%, #1a0830 0%, transparent 70%),
-                radial-gradient(ellipse 50% 40% at 80% 80%, #00122a 0%, transparent 60%);
-    pointer-events:none;
-  }
+/* Animated mesh background */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 90% 50% at 20% 10%, #12002a 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, #001a30 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, #0a0020 0%, transparent 70%);
+  pointer-events:none;
+}
 
-  #stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+#canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
 
-  .wrap { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:30px 20px 60px; }
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:28px 20px 80px}
 
-  /* ── Header ── */
-  header { text-align:center; margin-bottom:48px; }
+/* ── HEADER ── */
+header{text-align:center;padding:20px 0 44px;position:relative}
 
-  .trophy-icon { font-size:56px; display:block; animation:float 3s ease-in-out infinite; }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.crown{
+  font-size:52px;display:block;
+  animation:levitate 4s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px var(--gold));
+}
+@keyframes levitate{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
 
-  h1 {
-    font-family:'Orbitron', sans-serif;
-    font-size:clamp(22px,5vw,42px);
-    font-weight:900;
-    letter-spacing:3px;
-    background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    text-transform:uppercase;
-    margin:10px 0 6px;
-    text-shadow: 0 0 40px var(--glow-r);
-  }
+h1{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(20px,4.5vw,40px);
+  font-weight:900;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  margin:12px 0 4px;
+  background:linear-gradient(100deg, var(--accent) 0%, #ff8c42 40%, var(--cyan) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
 
-  .subtitle {
-    font-size:14px; letter-spacing:4px; color:var(--muted); text-transform:uppercase;
-  }
+.tagline{font-size:12px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
 
-  /* ── Upload box ── */
-  .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius:16px;
-    padding:30px;
-    text-align:center;
-    cursor:pointer;
-    transition:.3s;
-    margin-bottom:36px;
-    background: rgba(14,14,40,.6);
-    backdrop-filter:blur(8px);
-  }
-  .upload-zone:hover { border-color:var(--accent2); box-shadow:0 0 20px var(--glow-b); }
-  .upload-zone input { display:none; }
-  .upload-zone .icon { font-size:32px; margin-bottom:8px; }
-  .upload-zone p { font-size:15px; color:var(--muted); }
-  .upload-zone span { color:var(--accent2); font-weight:700; }
+.last-update{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:14px;padding:6px 16px;
+  border:1px solid var(--border);border-radius:99px;
+  font-size:12px;color:var(--muted);
+  background:rgba(255,255,255,.03);
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);
+     box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* ── KPI bar ── */
-  .kpi-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:16px;
-    margin-bottom:36px;
-  }
+/* ── STATUS LOADER ── */
+#statusBar{
+  text-align:center;padding:50px 20px;
+  font-size:15px;color:var(--muted);letter-spacing:2px;
+}
+.spinner{
+  width:36px;height:36px;border:3px solid var(--border);
+  border-top-color:var(--cyan);border-radius:50%;
+  animation:spin 1s linear infinite;margin:0 auto 16px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .kpi {
-    background: var(--card);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:20px 16px;
-    text-align:center;
-    position:relative;
-    overflow:hidden;
-    transition:.3s;
-  }
-  .kpi::after {
-    content:'';
-    position:absolute; bottom:0; left:0; right:0; height:3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-  }
-  .kpi:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,212,255,.15); }
-  .kpi-value { font-family:'Orbitron',sans-serif; font-size:32px; font-weight:700; color:var(--accent2); }
-  .kpi-label { font-size:11px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+/* ── KPI GRID ── */
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:14px;margin-bottom:40px;
+}
+.kpi{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:22px 18px;text-align:center;
+  position:relative;overflow:hidden;transition:.3s;
+}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--cyan));
+}
+.kpi:hover{transform:translateY(-5px);border-color:var(--cyan);
+           box-shadow:0 10px 35px var(--glow-c)}
+.kpi-val{
+  font-family:'Orbitron',sans-serif;font-size:34px;font-weight:700;
+  color:var(--cyan);line-height:1;
+}
+.kpi-lbl{font-size:10px;letter-spacing:3px;color:var(--muted);
+          text-transform:uppercase;margin-top:6px}
 
-  /* ── Section title ── */
-  .section-title {
-    font-family:'Orbitron',sans-serif;
-    font-size:13px; letter-spacing:4px; text-transform:uppercase;
-    color:var(--muted); margin-bottom:16px;
-    display:flex; align-items:center; gap:10px;
-  }
-  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+/* ── SECTION LABEL ── */
+.sec{
+  font-family:'Orbitron',sans-serif;font-size:11px;
+  letter-spacing:4px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:18px;
+  display:flex;align-items:center;gap:12px;
+}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  /* ── Podium ── */
-  .podium-wrap {
-    display:flex; align-items:flex-end; justify-content:center;
-    gap:16px; margin-bottom:48px; padding:0 10px;
-  }
+/* ── PODIUM ── */
+.podium{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:12px;margin-bottom:52px;
+}
 
-  .podium-block {
-    flex:1; max-width:220px;
-    border-radius:16px 16px 0 0;
-    padding:20px 14px 16px;
-    text-align:center;
-    position:relative;
-    cursor:default;
-    transition:.3s;
-    border:1px solid transparent;
-  }
-  .podium-block:hover { transform:translateY(-6px); }
+.p-block{
+  flex:1;max-width:240px;border-radius:18px 18px 0 0;
+  padding:22px 16px 18px;text-align:center;
+  position:relative;overflow:hidden;cursor:default;transition:.3s;
+}
+.p-block:hover{transform:translateY(-8px)}
+.p-block::after{
+  content:'';position:absolute;inset:0;opacity:.04;
+  background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);
+  background-size:8px 8px;pointer-events:none;
+}
 
-  .podium-1 {
-    background: linear-gradient(180deg, #2a1f00 0%, #1a1200 100%);
-    border-color: var(--gold);
-    box-shadow: 0 0 30px rgba(255,215,0,.25);
-    min-height:200px;
-  }
-  .podium-2 {
-    background: linear-gradient(180deg, #1c1c1c 0%, #111 100%);
-    border-color: var(--silver);
-    box-shadow: 0 0 20px rgba(192,192,192,.15);
-    min-height:160px;
-  }
-  .podium-3 {
-    background: linear-gradient(180deg, #1a0e00 0%, #100800 100%);
-    border-color: var(--bronze);
-    box-shadow: 0 0 20px rgba(205,127,50,.15);
-    min-height:130px;
-  }
+.p1{
+  background:linear-gradient(160deg,#241a00,#160f00);
+  border:1px solid var(--gold);min-height:210px;
+  animation:pulse-gold 3s ease-in-out infinite;
+}
+@keyframes pulse-gold{
+  0%,100%{box-shadow:0 0 25px rgba(255,215,0,.2)}
+  50%{box-shadow:0 0 55px rgba(255,215,0,.5),0 0 80px rgba(255,215,0,.15)}
+}
+.p2{background:linear-gradient(160deg,#1a1a22,#101018);border:1px solid var(--silver);min-height:170px}
+.p3{background:linear-gradient(160deg,#1c1000,#110900);border:1px solid var(--bronze);min-height:138px}
 
-  .podium-medal { font-size:38px; display:block; margin-bottom:6px; animation:float 3s ease-in-out infinite; }
-  .podium-2 .podium-medal { animation-delay:.6s; }
-  .podium-3 .podium-medal { animation-delay:1.2s; }
+.p-crown{font-size:36px;display:block;margin-bottom:4px;animation:levitate 3.5s ease-in-out infinite}
+.p2 .p-crown{animation-delay:.8s}.p3 .p-crown{animation-delay:1.5s}
 
-  .podium-pos {
-    font-family:'Orbitron',sans-serif; font-size:13px; letter-spacing:2px;
-    margin-bottom:6px;
-  }
-  .podium-1 .podium-pos { color:var(--gold); }
-  .podium-2 .podium-pos { color:var(--silver); }
-  .podium-3 .podium-pos { color:var(--bronze); }
+.p-pos{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;margin-bottom:6px}
+.p1 .p-pos{color:var(--gold)}.p2 .p-pos{color:var(--silver)}.p3 .p-pos{color:var(--bronze)}
 
-  .podium-name { font-size:17px; font-weight:700; margin-bottom:8px; }
-  .podium-score {
-    font-family:'Orbitron',sans-serif; font-size:30px; font-weight:900;
-  }
-  .podium-1 .podium-score { color:var(--gold); text-shadow:0 0 15px var(--gold); }
-  .podium-2 .podium-score { color:var(--silver); }
-  .podium-3 .podium-score { color:var(--bronze); }
+.p-name{font-size:16px;font-weight:700;margin-bottom:10px;line-height:1.2}
 
-  .podium-pct { font-size:12px; color:var(--muted); margin-top:4px; }
-  .podium-badge {
-    position:absolute; top:-12px; left:50%; transform:translateX(-50%);
-    background:var(--gold); color:#000; font-size:10px; font-weight:700;
-    padding:3px 10px; border-radius:99px; letter-spacing:1px;
-    display:none;
-  }
-  .podium-1 .podium-badge { display:block; }
+.p-score{font-family:'Orbitron',sans-serif;font-size:38px;font-weight:900;line-height:1}
+.p1 .p-score{color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,.6)}
+.p2 .p-score{color:var(--silver)}
+.p3 .p-score{color:var(--bronze)}
 
-  /* ── Full ranking table ── */
-  .ranking-table {
-    width:100%;
-    border-collapse:separate;
-    border-spacing:0 6px;
-  }
+.p-sub{font-size:11px;color:var(--muted);margin-top:6px}
 
-  .ranking-table thead tr th {
-    font-size:11px; letter-spacing:3px; text-transform:uppercase;
-    color:var(--muted); padding:10px 16px; text-align:left;
-  }
+.p-badge{
+  position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:#000;font-size:9px;font-weight:800;
+  padding:3px 12px;border-radius:0 0 8px 8px;letter-spacing:2px;
+  display:none;
+}
+.p1 .p-badge{display:block}
 
-  .ranking-row {
-    background: var(--card);
-    border-radius:10px;
-    transition:.25s;
-    cursor:default;
-  }
-  .ranking-row:hover { background:#171740; transform:translateX(4px); }
+/* ── RANKING TABLE ── */
+.r-wrap{display:flex;flex-direction:column;gap:6px}
 
-  .ranking-row td { padding:14px 16px; }
-  .ranking-row td:first-child { border-radius:10px 0 0 10px; }
-  .ranking-row td:last-child  { border-radius:0 10px 10px 0; }
+.r-row{
+  display:grid;
+  grid-template-columns:48px 1fr 90px 1fr 60px;
+  align-items:center;gap:12px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:14px 18px;
+  transition:.25s;cursor:default;
+}
+.r-row:hover{background:#14144a;border-color:var(--cyan);
+             transform:translateX(5px);box-shadow:0 4px 20px var(--glow-c)}
 
-  .rank-num {
-    font-family:'Orbitron',sans-serif; font-size:14px; font-weight:700;
-    width:40px; text-align:center; color:var(--muted);
-  }
-  .rank-1 { color:var(--gold)!important; }
-  .rank-2 { color:var(--silver)!important; }
-  .rank-3 { color:var(--bronze)!important; }
+.r-num{
+  font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;
+  text-align:center;color:var(--muted);
+}
+.r-num.g{color:var(--gold)}
+.r-num.s{color:var(--silver)}
+.r-num.b{color:var(--bronze)}
 
-  .rank-name { font-size:17px; font-weight:600; }
-  .rank-score { font-family:'Orbitron',sans-serif; font-size:22px; font-weight:700; color:var(--accent); }
-  .rank-meta  { font-size:12px; color:var(--muted); }
+.r-name{font-size:17px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-  /* Progress bar */
-  .bar-wrap { background:rgba(255,255,255,.06); border-radius:99px; height:8px; width:100%; min-width:120px; overflow:hidden; }
-  .bar-fill  { height:100%; border-radius:99px; transition:width 1s ease; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
-  .bar-fill.over { background:linear-gradient(90deg,var(--green),#69f0ae); }
+.badge{
+  font-size:10px;font-weight:700;padding:2px 8px;
+  border-radius:99px;letter-spacing:1px;white-space:nowrap;
+}
+.b-fire{background:rgba(233,69,96,.12);color:var(--accent);border:1px solid var(--accent)}
+.b-star{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid var(--gold)}
+.b-ok  {background:rgba(0,230,118,.1);color:var(--green);border:1px solid var(--green)}
 
-  .pct-text { font-size:13px; font-weight:600; color:var(--text); text-align:right; min-width:46px; }
+.r-score{
+  font-family:'Orbitron',sans-serif;font-size:24px;font-weight:700;
+  color:var(--accent);text-align:right;
+}
 
-  /* Badges */
-  .badge { display:inline-block; font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; letter-spacing:1px; margin-left:8px; }
-  .badge-fire  { background:rgba(233,69,96,.15); color:var(--accent); border:1px solid var(--accent); }
-  .badge-star  { background:rgba(255,215,0,.1);  color:var(--gold);   border:1px solid var(--gold); }
-  .badge-up    { background:rgba(0,230,118,.1);  color:var(--green);  border:1px solid var(--green); }
+.bar-outer{background:rgba(255,255,255,.05);border-radius:99px;height:7px;overflow:hidden}
+.bar-inner{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.4,0,.2,1);
+           background:linear-gradient(90deg,var(--accent),var(--cyan))}
+.bar-inner.done{background:linear-gradient(90deg,var(--green),#69f0ae)}
 
-  /* Empty state */
-  .empty { text-align:center; padding:60px 20px; color:var(--muted); }
-  .empty-icon { font-size:56px; display:block; margin-bottom:16px; }
-  .empty p { font-size:16px; }
+.r-pct{font-size:13px;font-weight:600;text-align:right;color:var(--text)}
 
-  /* Pulse animation on 1st place */
-  @keyframes pulse-gold {
-    0%,100% { box-shadow:0 0 30px rgba(255,215,0,.25); }
-    50%      { box-shadow:0 0 60px rgba(255,215,0,.55); }
-  }
-  .podium-1 { animation:pulse-gold 2.5s ease-in-out infinite; }
+/* ── ERROR STATE ── */
+#errorBox{
+  display:none;text-align:center;padding:50px 20px;
+  border:1px solid rgba(233,69,96,.3);border-radius:16px;
+  background:rgba(233,69,96,.05);
+}
+#errorBox .icon{font-size:44px;display:block;margin-bottom:12px}
+#errorBox p{color:var(--muted);font-size:15px;line-height:1.7}
+#errorBox a{color:var(--cyan);text-decoration:none}
 
-  /* Scroll-reveal */
-  .reveal { opacity:0; transform:translateY(24px); transition:.5s ease; }
-  .reveal.show { opacity:1; transform:translateY(0); }
+/* Stagger */
+.fade{opacity:0;transform:translateY(20px);transition:.5s ease}
+.fade.in{opacity:1;transform:translateY(0)}
 
-  /* Responsive */
-  @media(max-width:640px){
-    .podium-wrap { flex-direction:column; align-items:center; }
-    .podium-block { max-width:100%; width:100%; min-height:auto!important; border-radius:14px; }
-    .podium-1 { order:-1; }
-  }
+@media(max-width:620px){
+  .r-row{grid-template-columns:36px 1fr 70px;gap:8px}
+  .r-row .bar-outer,.r-row .r-pct{display:none}
+  .podium{flex-direction:column;align-items:center}
+  .p-block{max-width:100%;width:100%;min-height:auto!important;border-radius:14px}
+  .p1{order:-1}
+}
 </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
+<canvas id="canvas"></canvas>
 
 <div class="wrap">
 
-  <!-- Header -->
   <header>
-    <span class="trophy-icon">🏆</span>
+    <span class="crown">👑</span>
     <h1>Ranking de Indicações</h1>
-    <p class="subtitle">Equipe Comercial &nbsp;·&nbsp; Atualizado em tempo real</p>
+    <p class="tagline">Equipe Comercial</p>
+    <div class="last-update">
+      <span class="dot"></span>
+      <span id="lastUpdate">Conectando ao Google Sheets…</span>
+    </div>
   </header>
 
-  <!-- Upload -->
-  <div class="upload-zone reveal" id="dropZone">
-    <input type="file" id="xlsxInput" accept=".xlsx,.csv">
-    <div class="icon">📂</div>
-    <p>Arraste o arquivo <span>.xlsx</span> aqui ou <span>clique para carregar</span></p>
-    <p style="margin-top:6px;font-size:12px">Planilha: <em>indicacoes_vendedores.xlsx</em></p>
+  <div id="statusBar">
+    <div class="spinner"></div>
+    Carregando dados da planilha…
   </div>
 
-  <!-- KPIs -->
-  <div class="kpi-grid reveal" id="kpiGrid" style="display:none">
-    <div class="kpi"><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-label">Total de Indicações</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiVendedores">0</div><div class="kpi-label">Vendedores Ativos</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiMedia">0</div><div class="kpi-label">Média por Vendedor</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiLider">—</div><div class="kpi-label">Líder do Ranking</div></div>
+  <div id="errorBox">
+    <span class="icon">⚠️</span>
+    <p id="errorMsg">Não foi possível carregar os dados.</p>
   </div>
 
-  <!-- Podium -->
-  <div id="podiumSection" style="display:none">
-    <p class="section-title">🥇 Pódio</p>
-    <div class="podium-wrap reveal" id="podium"></div>
-  </div>
-
-  <!-- Full Ranking -->
-  <div id="rankingSection" style="display:none">
-    <p class="section-title">📊 Ranking Completo</p>
-    <div class="reveal">
-      <table class="ranking-table">
-        <thead>
-          <tr>
-            <th>#</th><th>Vendedor</th><th>Indicações</th><th>Progresso da Meta</th><th></th>
-          </tr>
-        </thead>
-        <tbody id="rankingBody"></tbody>
-      </table>
+  <div id="dashboard" style="display:none">
+    <div class="kpi-row fade" id="kpiRow">
+      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-lbl">Total Indicações</div></div>
+      <div class="kpi"><div class="kpi-val" id="kAtivos">0</div><div class="kpi-lbl">Vendedores Ativos</div></div>
+      <div class="kpi"><div class="kpi-val" id="kMedia">0</div><div class="kpi-lbl">Média por Vendedor</div></div>
+      <div class="kpi"><div class="kpi-val" id="kLider">—</div><div class="kpi-lbl">Líder do Ranking</div></div>
     </div>
-  </div>
 
-  <!-- Empty -->
-  <div class="empty reveal show" id="emptyState">
-    <span class="empty-icon">🚀</span>
-    <p>Carregue a planilha para ver o ranking ao vivo</p>
+    <p class="sec fade">🥇 Pódio</p>
+    <div class="podium fade" id="podium"></div>
+
+    <p class="sec fade">📊 Ranking Completo</p>
+    <div class="r-wrap fade" id="rankList"></div>
   </div>
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-// ── Starfield ──────────────────────────────────────────────────────────────
-const canvas = document.getElementById('stars');
-const ctx    = canvas.getContext('2d');
-let stars    = [];
+// ── Starfield ───────────────────────────────────────────────────────────────
+const cv = document.getElementById('canvas');
+const cx = cv.getContext('2d');
+let ST   = [];
 
-function resizeCanvas() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+function resize(){ cv.width=innerWidth; cv.height=innerHeight }
+resize(); addEventListener('resize',resize);
 
-for (let i = 0; i < 180; i++) {
-  stars.push({
-    x: Math.random(), y: Math.random(),
-    r: Math.random() * 1.4 + 0.3,
-    speed: Math.random() * 0.0003 + 0.0001,
-    opacity: Math.random() * 0.7 + 0.1
-  });
-}
-
-function drawStars() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  stars.forEach(s => {
-    s.y += s.speed;
-    if (s.y > 1) { s.y = 0; s.x = Math.random(); }
-    ctx.beginPath();
-    ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(200,210,255,${s.opacity})`;
-    ctx.fill();
-  });
-  requestAnimationFrame(drawStars);
-}
-drawStars();
-
-// ── Reveal on load ─────────────────────────────────────────────────────────
-document.querySelectorAll('.reveal').forEach((el, i) => {
-  setTimeout(() => el.classList.add('show'), i * 120);
+for(let i=0;i<220;i++) ST.push({
+  x:Math.random(), y:Math.random(),
+  r:Math.random()*1.5+.2,
+  s:Math.random()*.00025+.00008,
+  o:Math.random()*.8+.1,
+  hue: Math.random()<.3 ? 200 : 0   // cyan tint for some
 });
 
-// ── Upload / Drop ──────────────────────────────────────────────────────────
-const dropZone  = document.getElementById('dropZone');
-const xlsxInput = document.getElementById('xlsxInput');
+(function anim(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  ST.forEach(s=>{
+    s.y+=s.s; if(s.y>1){s.y=0;s.x=Math.random()}
+    cx.beginPath();
+    cx.arc(s.x*cv.width, s.y*cv.height, s.r, 0, Math.PI*2);
+    const col = s.hue===200 ? `rgba(150,220,255,${s.o})` : `rgba(210,215,255,${s.o})`;
+    cx.fillStyle=col; cx.fill();
+  });
+  requestAnimationFrame(anim);
+})();
 
-dropZone.addEventListener('click', () => xlsxInput.click());
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor='var(--accent)'; });
-dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor=''; });
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.style.borderColor='';
-  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
-});
-xlsxInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+// ── Google Sheets CSV ───────────────────────────────────────────────────────
+const SHEET_ID  = '1KfUrwyRrGhbDuAXrG01B65uq_mAHuKR51HNKJaSdsxA';
+const GID       = '1936514463';   // aba INDICAÇÕES
+const CSV_URL   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+const REFRESH_S = 60; // auto-refresh a cada 60 segundos
 
-// ── Process XLSX ───────────────────────────────────────────────────────────
-function processFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const wb  = XLSX.read(e.target.result, { type:'binary', cellDates:true });
-      // Tenta ler a aba INDICAÇÕES
-      const sheetName = wb.SheetNames.find(n => n.includes('ICA') || n.includes('ica')) || wb.SheetNames[0];
-      const ws  = wb.Sheets[sheetName];
-      const raw = XLSX.utils.sheet_to_json(ws, { header:1, raw:false });
-
-      // Detecta linha de cabeçalho (procura "VENDEDOR" ou "vendedor")
-      let headerRow = -1;
-      for (let i = 0; i < raw.length; i++) {
-        const r = raw[i].map(c => String(c||'').toUpperCase());
-        if (r.some(c => c.includes('VENDEDOR'))) { headerRow = i; break; }
-      }
-      if (headerRow < 0) { alert('Coluna "VENDEDOR" não encontrada na planilha.'); return; }
-
-      const headers = raw[headerRow].map(c => String(c||'').toUpperCase());
-      const iNome   = headers.findIndex(h => h.includes('VENDEDOR'));
-      const iQtd    = headers.findIndex(h => h.includes('INDICA') || h.includes('TOTAL'));
-      const iMeta   = headers.findIndex(h => h.includes('META'));
-
-      if (iNome < 0 || iQtd < 0) { alert('Colunas necessárias não encontradas.'); return; }
-
-      const data = [];
-      for (let i = headerRow + 1; i < raw.length; i++) {
-        const row  = raw[i];
-        const nome = String(row[iNome] || '').trim();
-        const qtd  = parseFloat(String(row[iQtd] || '0').replace(',','.')) || 0;
-        const meta = iMeta >= 0 ? (parseFloat(String(row[iMeta]||'30').replace(',','.')) || 30) : 30;
-        if (!nome || nome.toUpperCase().includes('TOTAL') || nome.toUpperCase().includes('GERAL')) continue;
-        data.push({ nome, qtd, meta });
-      }
-
-      if (!data.length) { alert('Nenhum vendedor encontrado.'); return; }
-
-      data.sort((a,b) => b.qtd - a.qtd);
-      renderDashboard(data);
-    } catch(err) {
-      console.error(err);
-      alert('Erro ao ler a planilha. Verifique o formato.');
-    }
-  };
-  reader.readAsBinaryString(file);
+async function fetchData(){
+  try {
+    const res = await fetch(CSV_URL + '&t=' + Date.now());
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    return parseCSV(text);
+  } catch(e){
+    throw e;
+  }
 }
 
-// ── Render ─────────────────────────────────────────────────────────────────
-function renderDashboard(data) {
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('kpiGrid').style.display = 'grid';
-  document.getElementById('podiumSection').style.display = 'block';
-  document.getElementById('rankingSection').style.display = 'block';
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+
+  // Encontra linha de cabeçalho
+  let hIdx = -1;
+  for(let i=0;i<lines.length;i++){
+    const up = lines[i].toUpperCase();
+    if(up.includes('VENDEDOR')){hIdx=i;break}
+  }
+  if(hIdx<0) throw new Error('Coluna "VENDEDOR" não encontrada na planilha.');
+
+  const headers = splitCSV(lines[hIdx]).map(h=>h.toUpperCase().trim());
+  const iNome = headers.findIndex(h=>h.includes('VENDEDOR'));
+  const iQtd  = headers.findIndex(h=>h.includes('INDICA')||h.includes('TOTAL'));
+  const iMeta = headers.findIndex(h=>h.includes('META'));
+
+  if(iNome<0||iQtd<0) throw new Error('Colunas necessárias não encontradas.\nEsperado: VENDEDOR e TOTAL DE INDICAÇÕES');
+
+  const data=[];
+  for(let i=hIdx+1;i<lines.length;i++){
+    const cols = splitCSV(lines[i]);
+    const nome = (cols[iNome]||'').trim();
+    if(!nome || nome.toUpperCase().includes('TOTAL') || nome.toUpperCase().includes('GERAL')) continue;
+    const qtd  = parseFloat((cols[iQtd]||'0').replace(/[^\d.,]/g,'').replace(',','.')) || 0;
+    const meta = iMeta>=0 ? (parseFloat((cols[iMeta]||'30').replace(/[^\d.,]/g,'').replace(',','.')) || 30) : 30;
+    data.push({nome, qtd, meta});
+  }
+  if(!data.length) throw new Error('Nenhum vendedor encontrado na planilha.');
+  return data.sort((a,b)=>b.qtd-a.qtd);
+}
+
+function splitCSV(line){
+  const res=[]; let cur='', inQ=false;
+  for(const ch of line){
+    if(ch==='"'){inQ=!inQ}
+    else if(ch===','&&!inQ){res.push(cur);cur=''}
+    else cur+=ch;
+  }
+  res.push(cur);
+  return res;
+}
+
+// ── Render ──────────────────────────────────────────────────────────────────
+function render(data){
+  document.getElementById('statusBar').style.display='none';
+  document.getElementById('errorBox').style.display='none';
+  const dash = document.getElementById('dashboard');
+  dash.style.display='block';
+
+  const now = new Date();
+  document.getElementById('lastUpdate').textContent =
+    'Atualizado às ' + now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
   // KPIs
-  const total   = data.reduce((s,d) => s + d.qtd, 0);
-  const ativos  = data.filter(d => d.qtd > 0).length;
-  const media   = ativos ? (total / ativos).toFixed(1) : '0';
-  const lider   = data[0]?.nome.split(' ')[0] || '—';
+  const total  = data.reduce((s,d)=>s+d.qtd,0);
+  const ativos = data.filter(d=>d.qtd>0).length;
+  const media  = ativos ? (total/ativos).toFixed(1) : '0';
+  const lider  = data[0]?.nome.split(' ')[0]||'—';
 
-  animateCount('kpiTotal', total);
-  animateCount('kpiVendedores', ativos);
-  document.getElementById('kpiMedia').textContent = media;
-  document.getElementById('kpiLider').textContent = lider;
+  countUp('kTotal', total);
+  countUp('kAtivos', ativos);
+  document.getElementById('kMedia').textContent = media;
+  document.getElementById('kLider').textContent = lider;
 
   // Podium
-  const podiumEl = document.getElementById('podium');
-  podiumEl.innerHTML = '';
-  const top3 = data.slice(0,3);
-  const order = [1, 0, 2]; // visual: 2nd, 1st, 3rd
+  const pod = document.getElementById('podium');
+  pod.innerHTML='';
+  const medals=['👑','🥈','🥉'];
+  const cls=['p1','p2','p3'];
+  const posLabel=['1º LUGAR','2º LUGAR','3º LUGAR'];
+  const order=[1,0,2];
 
-  order.forEach(idx => {
-    if (!top3[idx]) return;
-    const d    = top3[idx];
-    const pos  = idx + 1;
-    const medals = ['🥇','🥈','🥉'];
-    const cls  = ['podium-1','podium-2','podium-3'];
-    const pct  = d.meta ? Math.min(d.qtd / d.meta * 100, 999).toFixed(0) : 0;
-
-    const div = document.createElement('div');
-    div.className = `podium-block ${cls[idx]} reveal`;
-    div.innerHTML = `
-      <div class="podium-badge">LÍDER ⚡</div>
-      <span class="podium-medal">${medals[idx]}</span>
-      <div class="podium-pos">${pos}º LUGAR</div>
-      <div class="podium-name">${d.nome}</div>
-      <div class="podium-score" data-target="${d.qtd}">0</div>
-      <div class="podium-pct">${pct}% da meta</div>
-    `;
-    podiumEl.appendChild(div);
-    setTimeout(() => div.classList.add('show'), idx * 150);
+  order.forEach(idx=>{
+    if(!data[idx]) return;
+    const d=data[idx], pos=idx+1;
+    const pct=d.meta ? Math.min(d.qtd/d.meta*100,999).toFixed(0) : '—';
+    const div=document.createElement('div');
+    div.className=`p-block ${cls[idx]} fade`;
+    div.innerHTML=`
+      <div class="p-badge">⚡ LÍDER</div>
+      <span class="p-crown">${medals[idx]}</span>
+      <div class="p-pos">${posLabel[idx]}</div>
+      <div class="p-name">${d.nome}</div>
+      <div class="p-score" data-t="${d.qtd}">0</div>
+      <div class="p-sub">${pct}% da meta</div>`;
+    pod.appendChild(div);
+    setTimeout(()=>{div.classList.add('in'); countUpEl(div.querySelector('.p-score'),d.qtd)},idx*180);
   });
 
-  // Animate podium scores
-  setTimeout(() => {
-    document.querySelectorAll('.podium-score').forEach(el => {
-      animateCount(el, parseInt(el.dataset.target) || 0, null, true);
-    });
-  }, 400);
+  // Ranking
+  const list=document.getElementById('rankList');
+  list.innerHTML='';
+  data.forEach((d,i)=>{
+    const pct   = d.meta ? Math.min(d.qtd/d.meta*100,100) : 0;
+    const over  = d.meta && d.qtd>=d.meta;
+    const numCls= i===0?'g':i===1?'s':i===2?'b':'';
+    const nums  = ['🥇','🥈','🥉'];
+    const numDisp = i<3 ? nums[i] : (i+1);
+    const badges=[];
+    if(i===0) badges.push('<span class="badge b-star">⚡ LÍDER</span>');
+    if(over)  badges.push('<span class="badge b-ok">✓ META</span>');
+    if(d.qtd>=20) badges.push('<span class="badge b-fire">🔥 HOT</span>');
 
-  // Ranking table
-  const tbody = document.getElementById('rankingBody');
-  tbody.innerHTML = '';
-
-  data.forEach((d, i) => {
-    const pct    = d.meta ? Math.min(d.qtd / d.meta * 100, 100) : 0;
-    const over   = d.meta && d.qtd >= d.meta;
-    const rankCls = i < 3 ? `rank-${i+1}` : '';
-    const badges  = getBadges(d, i, data);
-    const medals  = ['🥇','🥈','🥉'];
-
-    const tr = document.createElement('tr');
-    tr.className = 'ranking-row';
-    tr.innerHTML = `
-      <td class="rank-num ${rankCls}">${i < 3 ? medals[i] : i+1}</td>
-      <td class="rank-name">${d.nome}${badges}</td>
-      <td class="rank-score" data-target="${d.qtd}">0</td>
-      <td>
-        <div class="bar-wrap">
-          <div class="bar-fill ${over?'over':''}" style="width:0%" data-pct="${pct}"></div>
-        </div>
-      </td>
-      <td class="pct-text">${d.meta ? Math.min(d.qtd/d.meta*100,999).toFixed(0)+'%' : '—'}</td>
-    `;
-    tbody.appendChild(tr);
+    const row=document.createElement('div');
+    row.className='r-row fade';
+    row.innerHTML=`
+      <div class="r-num ${numCls}">${numDisp}</div>
+      <div class="r-name">${d.nome}${badges.join('')}</div>
+      <div class="r-score" data-t="${d.qtd}">0</div>
+      <div class="bar-outer"><div class="bar-inner ${over?'done':''}" style="width:0%" data-p="${pct}"></div></div>
+      <div class="r-pct">${d.meta ? Math.min(d.qtd/d.meta*100,999).toFixed(0)+'%':'—'}</div>`;
+    list.appendChild(row);
+    setTimeout(()=>{
+      row.classList.add('in');
+      countUpEl(row.querySelector('.r-score'),d.qtd);
+    }, i*70);
   });
 
-  // Animate bars and scores
-  setTimeout(() => {
-    document.querySelectorAll('.bar-fill').forEach(el => {
-      el.style.width = el.dataset.pct + '%';
+  setTimeout(()=>{
+    document.querySelectorAll('.bar-inner').forEach(el=>{
+      el.style.width=el.dataset.p+'%';
     });
-    document.querySelectorAll('.rank-score').forEach(el => {
-      animateCount(el, parseInt(el.dataset.target)||0, null, true);
-    });
-  }, 200);
+  },300);
 
-  // Scroll reveals
-  document.querySelectorAll('.reveal').forEach((el,i) => {
-    setTimeout(() => el.classList.add('show'), i * 80);
+  // Fade in sections
+  document.querySelectorAll('.fade').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('in'),i*60);
   });
 }
 
-function getBadges(d, rank, data) {
-  let out = '';
-  if (rank === 0) out += '<span class="badge badge-star">⚡ LÍDER</span>';
-  if (d.meta && d.qtd >= d.meta) out += '<span class="badge badge-up">✓ META</span>';
-  if (d.qtd >= 20) out += '<span class="badge badge-fire">🔥 HOT</span>';
-  return out;
+function showError(msg){
+  document.getElementById('statusBar').style.display='none';
+  const box=document.getElementById('errorBox');
+  box.style.display='block';
+  document.getElementById('errorMsg').innerHTML=
+    msg + '<br><br>Verifique se a planilha está compartilhada como <strong>"Qualquer pessoa com o link"</strong>.';
 }
 
-function animateCount(elOrId, target, duration=900, isEl=false) {
-  const el = isEl ? elOrId : document.getElementById(elOrId);
-  if (!el) return;
-  const start = Date.now();
-  const step = () => {
-    const p = Math.min((Date.now()-start)/duration, 1);
-    const ease = 1 - Math.pow(1-p, 3);
-    el.textContent = Math.round(ease * target);
-    if (p < 1) requestAnimationFrame(step);
-  };
-  step();
+// ── Counter animation ────────────────────────────────────────────────────────
+function countUp(id, target, dur=900){
+  countUpEl(document.getElementById(id), target, dur);
 }
+function countUpEl(el, target, dur=900){
+  if(!el) return;
+  const start=Date.now();
+  (function step(){
+    const p=Math.min((Date.now()-start)/dur,1);
+    const e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(e*target);
+    if(p<1) requestAnimationFrame(step);
+  })();
+}
+
+// ── Init + auto-refresh ──────────────────────────────────────────────────────
+async function load(){
+  try{
+    const data=await fetchData();
+    render(data);
+  }catch(e){
+    showError(e.message||'Erro desconhecido');
+  }
+}
+
+load();
+setInterval(load, REFRESH_S * 1000);
 </script>
 </body>
 </html>
